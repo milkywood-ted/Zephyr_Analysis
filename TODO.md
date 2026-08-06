@@ -44,7 +44,7 @@
 | 04 | [04-타임아웃과-시스템-클럭.md](1.zephyr분석/04-타임아웃과-시스템-클럭.md) | ✅ 완료 | 02·03 서술 재확인 완료 (§10). 정정 필요 사항 없음 |
 | 05 | [05-SMP와-스핀락.md](1.zephyr분석/05-SMP와-스핀락.md) | ✅ 완료 | — |
 | 06 | [06-동기화-객체.md](1.zephyr분석/06-동기화-객체.md) | ✅ 완료 | `k_queue`/`k_stack`/`k_msgq`/`k_mbox`/`k_pipe`는 미포함 (범위 참조) |
-| 07 | `07-부팅과-초기화.md` | 🔵 다음 | — |
+| 07 | [07-부팅과-초기화.md](1.zephyr분석/07-부팅과-초기화.md) | ✅ 완료 | 커널 코어 1차 분석 범위 완료 |
 
 ---
 
@@ -82,10 +82,25 @@
 - 공통 기반인 `z_pend_curr()` / `z_sched_wake()` 위에 각각 어떻게 쌓이는지
 - `k_queue`, `k_stack`, `k_msgq`, `k_mbox`, `k_pipe`는 **미포함** — 자료구조 운반이 주이고 동기화 원리는 위 다섯과 동일하므로, 필요 시 별도 문서로 다룹니다
 
-### 07 부팅과 초기화
+### 07 부팅과 초기화 — 완료
 - 리셋 벡터 → `z_cstart()` → `SYS_INIT` 레벨 → main 스레드 진입
-- `kernel/init.c`, `arch/arm64/core/reset.c`·`prep_c.c`
-- A53 특이사항: EL2/EL1 전환, MMU 초기화
+- `kernel/init.c`, `arch/arm64/core/reset.S`·`reset.c`·`prep_c.c`
+- A53 특이사항: EL3/EL2/EL1 강등 사다리, voting lock 기반 주 코어 선출
+
+---
+
+## 4-1. 후속 분석 후보 (미착수, 우선순위 미정)
+
+커널 코어 1차 범위가 완료되었으므로, 다음 단계는 사용자 결정이 필요합니다.
+
+| 후보 | 내용 | 비고 |
+|---|---|---|
+| 워크 큐 | `kernel/work.c` — `k_work`, delayable, poll 연동 | 커널 코어의 마지막 미분석 영역 |
+| 데이터 전달 객체 | `k_queue`, `k_stack`, `k_msgq`, `k_mbox`, `k_pipe` | 06에서 의도적으로 제외 |
+| 메모리 관리 | `kheap.c`, `mem_slab.c`, `mempool.c`, `mmu.c` | |
+| 디바이스 드라이버 모델 | `device.c`, devicetree, Kconfig 연동 | 초기 질의에서 후보였던 항목 |
+| 빌드 시스템 | CMake / Kconfig / DTS / west 결합 | 동일 |
+| userspace | `kernel/userspace/`, syscall 생성, 메모리 도메인 | 타깃에서 비활성이라 별도 구성 필요 |
 
 ---
 
