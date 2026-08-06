@@ -177,6 +177,9 @@ ANCHORS = [
     ("zephyr/include/zephyr/sys/iterable_sections.h", 244, "define STRUCT_SECTION_ITERABLE"),
     ("zephyr/kernel/timeout.c", 296, "EXPORT_SYMBOL(z_timeout_remaining)"),
     ("zephyr/kernel/spinlock_validate.c", 38, "EXPORT_SYMBOL(z_spin_lock_valid)"),
+    ("zephyr/subsys/portability/posix/options/CMakeLists.txt", 187, "zephyr_library_include_directories("),
+    ("zephyr/subsys/tracing/CMakeLists.txt", 65, "zephyr_include_directories_ifdef("),
+    ("zephyr/subsys/portability/posix/options/semaphore.c", 16, "#include <wait_q.h>"),
 ]
 
 def resolve(rel):
