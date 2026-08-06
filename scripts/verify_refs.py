@@ -246,5 +246,60 @@ for rel, line, needle in ANCHORS:
         print(f"  FAIL {rel}:{line}  기대 {needle!r}  실제 {actual.strip()!r}")
         fail += 1
 
+print("\n=== 3. 절 참조 (§) 유효성 ===")
+# 문서들이 서로의 절을 "04-....md §6.3", "02 §7", "본 문서 §4.2" 처럼 가리킨다.
+# 대상 문서에 그 절이 실제로 있는지 확인한다. 절 번호는 문서를 고치면 쉽게
+# 어긋나는데 링크 검사로는 잡히지 않으므로 별도 검사가 필요하다.
+#
+# 귀속 규칙(휴리스틱): 한 줄 안에서 § 앞 PROXIMITY자 이내에 문서 지시자가
+# 있으면 그 문서, 없으면 자기 문서로 본다. "본 문서" 가 바로 앞에 오면 항상
+# 자기 문서다. 표 한 줄에 여러 참조가 섞여도 대체로 맞지만 완벽하지는 않다.
+PROXIMITY = 40
+
+doc_text = {p.name: p.read_text(encoding="utf-8") for p in DOCS}
+by_num = {n[:2]: n for n in doc_text if re.match(r"^[0-9]{2}-", n)}
+
+doc_sections = {}
+for _name, _text in doc_text.items():
+    _s = set()
+    for _m in re.finditer(r"^#{2,4}\s+([0-9]+(?:[.\-][0-9]+)*)\.?\s", _text, re.M):
+        _num = _m.group(1)
+        _s.add(_num)
+        _parts = _num.replace("-", ".").split(".")
+        for _i in range(1, len(_parts)):
+            _s.add(".".join(_parts[:_i]))   # "4.2" 가 있으면 "4" 도 유효
+    doc_sections[_name] = _s
+
+DOCREF = re.compile(
+    r"(?:(?P<full>[0-9]{2}-[^\s`\)\]]+?\.md)"
+    r"|(?<![/\w])(?P<meta>(?:TODO|README)\.md)"
+    r"|(?<![0-9.\w])(?P<num>[0-9]{2})(?=\s*§))"
+)
+SECREF = re.compile(r"§\s*([0-9]+(?:[.\-][0-9]+)*)")
+
+sec_checked = 0
+for name, text in doc_text.items():
+    for lineno, line in enumerate(text.splitlines(), 1):
+        refs = []
+        for m in DOCREF.finditer(line):
+            t = m.group("full") or m.group("meta") or by_num.get(m.group("num"))
+            if t:
+                refs.append((m.end(), t))
+        for m in SECREF.finditer(line):
+            sec = m.group(1)
+            sec_checked += 1
+            near = [t for (end, t) in refs if 0 <= m.start() - end <= PROXIMITY]
+            target = near[-1] if near else name
+            if "본 문서" in line[max(0, m.start() - 12):m.start()]:
+                target = name
+            if target not in doc_text:
+                print(f"  FAIL {name}:{lineno} 대상 문서 없음: {target}")
+                fail += 1
+            elif sec not in doc_sections[target]:
+                print(f"  FAIL {name}:{lineno} → {target} §{sec} 없음")
+                print(f"       | {line.strip()[:90]}")
+                fail += 1
+print(f"  검사한 절 참조: {sec_checked}건")
+
 print(f"\n결과: {'모두 통과' if fail == 0 else str(fail) + '건 실패'}")
 sys.exit(1 if fail else 0)
