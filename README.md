@@ -34,7 +34,7 @@ Zephyr RTOS의 커널 코어를 소스 코드 수준에서 분석한 문서 모�
 | # | 문서 | 내용 | 상태 |
 |---|---|---|---|
 | 08 | [계층과 의존 구조](08-계층과-의존-구조.md) | include 그래프 실측, 의존성 역전, 경계를 강제하는 빌드 시스템 | 완료 |
-| 09 | 확장 메커니즘 | `arch_*` 계약, `__weak`, iterable section, Kconfig 백엔드 교체 | 예정 |
+| 09 | [확장 메커니즘](09-확장-메커니즘.md) | `arch_*` 계약, `__weak`, iterable section, Kconfig 백엔드 교체, 디바이스 모델, syscall, LLEXT | 완료 |
 
 후속 분석 후보는 [TODO.md](TODO.md) §4-1에 정리되어 있습니다.
 
