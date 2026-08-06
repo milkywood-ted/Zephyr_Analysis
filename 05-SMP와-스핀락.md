@@ -62,7 +62,7 @@ struct k_spinlock {
 };
 ```
 
-UP + 검증 비활성 조합에서는 **멤버가 하나도 남지 않습니다.** 그때 `dummy`가 붙는 이유가 주석에 있습니다([spinlock.h:82-91](zephyr/include/zephyr/spinlock.h#L82-L91)): 빈 구조체의 크기가 **C에서는 0, C++에서는 1**이라, `k_msgq` 같은 다른 구조체에 임베드될 때 두 언어가 **후속 멤버의 오프셋을 다르게 계산**합니다. 언어 간 ABI 불일치를 막기 위한 패딩입니다.
+UP + 검증 비활성 조합에서는 **멤버가 하나도 남지 않습니다.** `dummy`는 그때 **자동으로 붙는 것이 아니라** 세 번째 조건 `CONFIG_NONZERO_SPINLOCK_SIZE`가 켜져 있어야 붙습니다(C++이나 POSIX 계층이 select). 즉 "빈 구조체"와 "dummy 보유"는 서로 다른 빌드입니다. 그 이유가 주석에 있습니다([spinlock.h:82-91](zephyr/include/zephyr/spinlock.h#L82-L91)): 빈 구조체의 크기가 **C에서는 0, C++에서는 1**이라, `k_msgq` 같은 다른 구조체에 임베드될 때 두 언어가 **후속 멤버의 오프셋을 다르게 계산**합니다. 언어 간 ABI 불일치를 막기 위한 패딩입니다.
 
 이 타깃(SMP=y)에서는 `atomic_t locked` 하나가 실체입니다.
 
@@ -318,7 +318,7 @@ if (!IS_ENABLED(CONFIG_IPI_OPTIMIZE)) {
 }
 ```
 
-**기본값(`IPI_OPTIMIZE=n`)에서는 계산 없이 전체 마스크**입니다. 본 타깃도 여기에 해당합니다.
+**기본값(`IPI_OPTIMIZE=n`)에서는 계산 없이 전체 마스크**입니다. 본 타깃도 여기에 해당합니다. 단 CPU가 1개면 `0`을 반환합니다. 또한 `IPI_ALL_CPUS_MASK`는 실제 활성 CPU 수가 아니라 **구성된 최대치**에서 유도되며([ipi.h:14](zephyr/kernel/include/ipi.h#L14)) 자기 비트를 포함합니다 — 그 비트는 §6.2에서 걸러집니다.
 
 옵션을 켜면 CPU마다 다음 네 조건을 따집니다([ipi.c:46-54](zephyr/kernel/smp/ipi.c#L46-L54)).
 

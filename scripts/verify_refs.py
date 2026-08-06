@@ -180,6 +180,12 @@ ANCHORS = [
     ("zephyr/subsys/portability/posix/options/CMakeLists.txt", 187, "zephyr_library_include_directories("),
     ("zephyr/subsys/tracing/CMakeLists.txt", 65, "zephyr_include_directories_ifdef("),
     ("zephyr/subsys/portability/posix/options/semaphore.c", 16, "#include <wait_q.h>"),
+    # --- 3차 독립 검증(46개 명제)에서 정정된 서술의 근거 ---
+    ("zephyr/include/zephyr/linker/common-rom/common-rom-kernel-devices.ld", 14, "CREATE_OBJ_LEVEL(init, EARLY)"),
+    ("zephyr/include/zephyr/linker/linker-defs.h", 70, "define CREATE_OBJ_LEVEL"),
+    ("zephyr/kernel/timeslicing.c", 194, "z_is_idle_thread_object(next)"),
+    ("zephyr/kernel/include/priority_q.h", 137, "ifndef CONFIG_SMP"),
+    ("zephyr/kernel/scheduler.c", 116, "post_func"),
 ]
 
 def resolve(rel):
