@@ -101,12 +101,18 @@ west build -b qemu_cortex_a53/qemu_cortex_a53/smp samples/hello_world
 
 ## 검증
 
-문서의 인용 정확성은 스크립트로 확인합니다. 검사 항목은 두 가지입니다.
+문서의 인용 정확성은 [scripts/verify_refs.py](scripts/verify_refs.py)로 확인합니다.
+
+```sh
+python3 scripts/verify_refs.py
+```
 
 1. 모든 마크다운 링크의 대상 파일 존재 여부와 행 범위 유효성
 2. 핵심 인용에 대해, 지정한 행에 기대한 코드가 실제로 있는지
 
-최근 실행 결과: 링크 403건, 핵심 인용 131건 — 전부 통과.
+최근 실행 결과: 링크 421건, 핵심 인용 141건 — 전부 통과.
+
+계층 의존 수치는 [scripts/include_graph.py](scripts/include_graph.py)로 재현합니다. 두 스크립트의 사용법과 한계는 [scripts/README.md](scripts/README.md)를 참조하십시오.
 
 ## 알려진 제약
 
